@@ -6,11 +6,6 @@ pipeline {
         jdk 'JAVA_HOME' 
 	}
 	stages {
-		stage('Clone sources){
-		steps {
-			git url: 'https://github.com/mayuranr/DevOps'
-		}
-	}
 		stage('Execute Maven'){
 		steps {
 			script {
@@ -25,4 +20,5 @@ pipeline {
 			}
 		}
 	}
+}
 }
