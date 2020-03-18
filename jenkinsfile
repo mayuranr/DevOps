@@ -1,54 +1,30 @@
 pipeline {
     agent any
-    stages {
-        stage ('Clone') {
+	tools { 
+        maven 'MAVEN_HOME' 
+        jdk 'JAVA_HOME' 
+    }
+	stages {
+        stage('Build') { 
             steps {
-                git branch: 'master', url: "https://github.com/mayuranr/DevOps.git"
+                sh 'mvn -B 'WebApp/pom.xml' clean deploy clean package' 
             }
         }
-
-        stage ('Artifactory configuration') {
+        stage('Test') {
             steps {
-                rtServer (
-                    id: "ARTIFACTORY_SERVER",
-                    url: SERVER_URL,
-                    credentialsId: CREDENTIALS
-                )
-
-                rtMavenDeployer (
-                    id: "MAVEN_DEPLOYER",
-                    serverId: "ARTIFACTORY_SERVER",
-                    releaseRepo: "libs-release-local",
-                    snapshotRepo: "libs-snapshot-local"
-                )
-
-                rtMavenResolver (
-                    id: "MAVEN_RESOLVER",
-                    serverId: "ARTIFACTORY_SERVER",
-                    releaseRepo: "libs-release",
-                    snapshotRepo: "libs-snapshot"
-                )
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
             }
         }
-
-        stage ('Exec Maven') {
+        stage('Deliver') {
             steps {
-                rtMavenRun (
-                    tool: MAVEN_HOME, // Tool name from Jenkins configuration
-                    pom: 'WebApp/pom.xml',
-                    goals: 'clean install',
-                    deployerId: "MAVEN_DEPLOYER",
-                    resolverId: "MAVEN_RESOLVER"
-                )
-            }
-        }
-
-        stage ('Publish build info') {
-            steps {
-                rtPublishBuildInfo (
-                    serverId: "ARTIFACTORY_SERVER"
-                )
+                sh './jenkins/scripts/deliver.sh'
             }
         }
     }
 }
+
