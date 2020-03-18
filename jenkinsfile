@@ -7,7 +7,7 @@ pipeline {
 	stages {
         stage('Build') { 
             steps {
-                mavenbuildArgs = "-f TomcatHelloWorld/pom.xml clean deploy" 
+                mavenbuildArgs = "-f WebApp/pom.xml clean deploy" 
             }
         }
         stage('Test') {
