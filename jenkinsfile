@@ -7,7 +7,7 @@ pipeline {
 	stages {
         stage('Build') { 
             steps {
-                sh 'mvn -B C:\Program Files (x86)\Jenkins\workspace\DevOpsPipelineDemo\pom.xml clean deploy clean package' 
+                sh 'mvn -B \pom.xml clean deploy clean package' 
             }
         }
         stage('Test') {
