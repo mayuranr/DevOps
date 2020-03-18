@@ -1,24 +1,54 @@
 pipeline {
-	agent any
+    agent any
+    stages {
+        stage ('Clone') {
+            steps {
+                git branch: 'master', url: "https://github.com/mayuranr/DevOps.git"
+            }
+        }
 
-	tools {
-		maven 'MAVEN_HOME' 
-        jdk 'JAVA_HOME' 
-	}
-	stages {
-		stage('Execute Maven'){
-		steps {
-			script {
-				rtMaven.run pom: 'pom.xml', goals: 'clean install', buildInfo: buildInfo
-			}
-		}
-	}
-		stage('Publish build info') {
-		steps {
-			script {
-				server.publishBuildInfo buildInfo
-			}
-		}
-	}
-}
+        stage ('Artifactory configuration') {
+            steps {
+                rtServer (
+                    id: "ARTIFACTORY_SERVER",
+                    url: SERVER_URL,
+                    credentialsId: CREDENTIALS
+                )
+
+                rtMavenDeployer (
+                    id: "MAVEN_DEPLOYER",
+                    serverId: "ARTIFACTORY_SERVER",
+                    releaseRepo: "libs-release-local",
+                    snapshotRepo: "libs-snapshot-local"
+                )
+
+                rtMavenResolver (
+                    id: "MAVEN_RESOLVER",
+                    serverId: "ARTIFACTORY_SERVER",
+                    releaseRepo: "libs-release",
+                    snapshotRepo: "libs-snapshot"
+                )
+            }
+        }
+
+        stage ('Exec Maven') {
+            steps {
+                rtMavenRun (
+                    tool: MAVEN_HOME, // Tool name from Jenkins configuration
+                    pom: 'WebApp/pom.xml',
+                    goals: 'clean install',
+                    deployerId: "MAVEN_DEPLOYER",
+                    resolverId: "MAVEN_RESOLVER"
+                )
+            }
+        }
+
+        stage ('Publish build info') {
+            steps {
+                rtPublishBuildInfo (
+                    serverId: "ARTIFACTORY_SERVER"
+                )
+            }
+        }
+    }
 }
