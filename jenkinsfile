@@ -7,7 +7,7 @@ pipeline {
 	stages {
         stage('Build') { 
             steps {
-                sh 'mvn -B 'WebApp/pom.xml' clean deploy clean package' 
+                maven.run pom: 'WebApp/pom.xml' goals: 'clean install'
             }
         }
         stage('Test') {
