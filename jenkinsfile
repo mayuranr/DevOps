@@ -1,16 +1,28 @@
 pipeline {
-    agent any
-	tools { 
-        maven 'MAVEN_HOME' 
+	agent any
+
+	tools {
+		maven 'MAVEN_HOME' 
         jdk 'JAVA_HOME' 
-    }
+	}
 	stages {
-        stage('Build') { 
-            steps {
-                sh 'mvn -f C:/Program File(x86)/Jenkins/workspace/DevOpsPipelineDemo/WebApp/pom.xml clean deploy' 
-            }
-        }
-
-    }
+		stage('Clone sources){
+		steps {
+			git url: 'https://github.com/mayuranr/DevOps'
+		}
+	}
+		stage('Execute Maven'){
+		steps {
+			script {
+				rtMaven.run pom: 'pom.xml', goals: 'clean install', buildInfo: buildInfo
+			}
+		}
+	}
+		stage('Publish build info') {
+		steps {
+			script {
+				server.publishBuildInfo buildInfo
+			}
+		}
+	}
 }
-
