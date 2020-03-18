@@ -7,7 +7,7 @@ pipeline {
 	stages {
         stage('Build') { 
             steps {
-                sh 'mvn -b workspace/DevOpsPipelineDemo/WebApp/pom.xml clean deploy' 
+                sh 'mvn -b WebApp/pom.xml clean deploy' 
             }
         }
         stage('Test') {
