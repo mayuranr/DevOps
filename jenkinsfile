@@ -10,16 +10,6 @@ pipeline {
                 sh 'mvn -f C:/Program File(x86)/Jenkins/workspace/DevOpsPipelineDemo/WebApp/pom.xml clean deploy' 
             }
         }
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
-                }
-            }
-        }
 
     }
 }
